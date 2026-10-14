@@ -47,6 +47,7 @@ add_executable(mon_keyer
     encoder.c
     flash_settings.c
     usb_device.c
+    sidetone.c
     usb_audio.c
     usb_audio_hw.c
     usb_descriptors.c
@@ -59,6 +60,7 @@ target_link_libraries(mon_keyer
     hardware_gpio
     hardware_i2c
     hardware_pwm
+    hardware_irq
     hardware_flash
     hardware_sync
     pico_multicore

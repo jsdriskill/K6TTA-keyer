@@ -9,13 +9,15 @@ CW paddle keyer for RP2040 with SSD1306 UI, rotary encoder setup, flash-backed s
 | Dit paddle (active low, pull-up) | 2 |
 | Dash paddle | 3 |
 | TX key out | 4 |
-| Sidetone PWM | 5 |
+| Sidetone (PWM sine) | 5 |
 | Encoder A | 6 |
 | Encoder B | 7 |
 | Encoder switch | 8 |
 | OLED SDA (I2C0) | 12 |
 | OLED SCL | 13 |
 | SSD1306 address | 0x3C |
+
+**Sidetone (pin 5).** A sine wave made with the PWM as a one-pin DAC: 11-bit steps, about 61 kHz carrier and sample rate, a 256-point sine table with linear interpolation, and 4 ms attack/release ramps (no key clicks). The pin swings between 0 V and 3.3 V, so use a series resistor and, for a speaker, a coupling capacitor; a piezo can be driven directly. A small low-pass (for example 1 kohm + 100 nF) removes the 61 kHz carrier if you feed an amplifier. The SIDE VOL setting (1-10) scales the amplitude linearly (1 = 10 % of the maximum swing). The wave comes from a PWM wrap interrupt on core 0, about 3 % of that core; the pin is parked low whenever the tone is off.
 
 ## Build
 

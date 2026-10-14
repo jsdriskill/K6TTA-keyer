@@ -4,7 +4,7 @@
 #include "pico/util/queue.h"
 #include "hardware/gpio.h"
 #include "hardware/clocks.h"
-#include "hardware/pwm.h"
+#include "sidetone.h"
 #include "usb_device.h"
 
 typedef enum {
@@ -22,7 +22,6 @@ static bool dash_latched = false;
 static bool last_was_dit = false;
 static bool bug_dah_flag;               /* bug mode: dah key-down is in progress */
 static bool first_element = true;
-static uint slice_num;
 
 /* ------------------------------------------------------------------------
  * Text sender (used by the WinKeyer serial port)
@@ -202,71 +201,6 @@ static void key_off(void) {
     usb_key_event(false);
 }
 
-/*
- * Sidetone output: PWM square wave on PIN_SIDETONE_PWM.
- *
- * The pin's PWM channel comes from the pin number (GPIO n -> slice n/2,
- * channel A for even n, B for odd n); GPIO5 is channel B. The slice is shared
- * with GPIO4 (PIN_TX_KEY) but that pin is plain SIO, so it is not affected.
- * While the sidetone is off the pin is parked low as a normal output:
- * stopping the PWM slice alone would freeze the pin at whatever level it had,
- * leaving DC across a buzzer.
- */
-static uint chan_num;
-static bool sidetone_on;
-
-static void sidetone_pin_low(void) {
-    gpio_put(PIN_SIDETONE_PWM, 0);
-    gpio_set_dir(PIN_SIDETONE_PWM, GPIO_OUT);
-    gpio_set_function(PIN_SIDETONE_PWM, GPIO_FUNC_SIO);
-}
-
-void keyer_update_sidetone_freq(void) {
-    uint32_t freq = sys_config.sidetone_freq;
-    if (freq < 100) {
-        return;
-    }
-    if (freq > 4000) {
-        freq = 4000;
-    }
-
-    /* Smallest integer divider that keeps the 16 bit counter in range, which
-     * gives the finest pitch resolution (about 0.002 %). */
-    uint32_t clk = clock_get_hz(clk_sys);
-    uint32_t divider = clk / (freq * 65536u) + 1;
-    uint32_t wrap = clk / (freq * divider) - 1;
-
-    pwm_set_clkdiv(slice_num, (float)divider);
-    pwm_set_wrap(slice_num, (uint16_t)wrap);
-    /* Volume: 50 % duty is the loudest a square wave gets, so volume n of 10
-     * is n/10 of that duty (1 = 10 % of maximum, 10 = maximum). */
-    uint32_t vol = sys_config.sidetone_vol;
-    if (vol < SIDETONE_VOL_MIN || vol > SIDETONE_VOL_MAX) {
-        vol = SIDETONE_VOL_MAX;
-    }
-    pwm_set_chan_level(slice_num, chan_num, ((wrap + 1) / 2) * vol / SIDETONE_VOL_MAX);
-}
-
-void keyer_update_sidetone_volume(void) {
-    keyer_update_sidetone_freq();       /* recomputes the duty from the volume */
-}
-
-void keyer_set_sidetone(bool active) {
-    bool want = sys_config.sidetone_en && active;
-    if (want == sidetone_on) {
-        return;                     /* called every tick in some modes: do nothing if unchanged */
-    }
-    sidetone_on = want;
-    if (want) {
-        pwm_set_counter(slice_num, 0);
-        pwm_set_enabled(slice_num, true);
-        gpio_set_function(PIN_SIDETONE_PWM, GPIO_FUNC_PWM);
-    } else {
-        pwm_set_enabled(slice_num, false);
-        sidetone_pin_low();
-    }
-}
-
 void keyer_init(void) {
     queue_init(&tx_q, sizeof(uint16_t), TX_Q_DEPTH);
     queue_init(&echo_q, sizeof(uint8_t), ECHO_Q_DEPTH);
@@ -283,13 +217,7 @@ void keyer_init(void) {
     gpio_set_dir(PIN_TX_KEY, GPIO_OUT);
     gpio_put(PIN_TX_KEY, 0);
 
-    slice_num = pwm_gpio_to_slice_num(PIN_SIDETONE_PWM);
-    chan_num = pwm_gpio_to_channel(PIN_SIDETONE_PWM);
-    gpio_init(PIN_SIDETONE_PWM);
-    sidetone_pin_low();
-    pwm_set_enabled(slice_num, false);
-    keyer_update_sidetone_freq();
-    sidetone_on = false;
+    sidetone_init();
 }
 
 bool keyer_is_busy(void) {
@@ -697,6 +625,7 @@ static bool debounce(Debounce *d, bool in, uint32_t now) {
 }
 
 void keyer_tick(void) {
+    sidetone_service();
     uint32_t now = to_ms_since_boot(get_absolute_time());
 
     bool pin_dit  = debounce(&deb_dit,  !gpio_get(PIN_PADDLE_DIT),  now);
