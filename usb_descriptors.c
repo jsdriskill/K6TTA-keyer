@@ -118,12 +118,12 @@ enum {
 
 static char const *const string_desc_arr[] = {
     (const char[]){0x09, 0x04},   /* 0: English (0x0409) */
-    "Mon",                        /* 1: manufacturer */
-    "Keyer",                      /* 2: product (Linux shows "<manufacturer> <product>") */
+    "K6TTA",                      /* 1: manufacturer */
+    "Keyer",                      /* 2: product (hosts show "<manufacturer> <product>" = "K6TTA Keyer") */
     NULL,                         /* 3: serial, from the flash unique id */
-    "Mon Keyer Sidetone",         /* 4: audio function */
-    "Mon Keyer WinKeyer",         /* 5: CDC serial */
-    "Mon Keyer MIDI",             /* 6: MIDI */
+    "K6TTA Keyer Sidetone",        /* 4: audio function */
+    "K6TTA Keyer WinKeyer",        /* 5: CDC serial */
+    "K6TTA Keyer MIDI",            /* 6: MIDI */
 };
 
 static uint16_t desc_str[32 + 1];
