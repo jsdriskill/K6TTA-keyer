@@ -31,7 +31,7 @@ cmake --build build
 
 For Pico 2, pass `-DPICO_BOARD=pico2`.
 
-Flash `build/k6tta_keyer.uf2` by holding BOOTSEL, plugging USB, and copying the UF2.
+Flash `build/k6tta-keyer.uf2` by holding BOOTSEL, plugging USB, and copying the UF2.
 
 ## USB
 

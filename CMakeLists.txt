@@ -74,6 +74,7 @@ target_link_libraries(k6tta_keyer
 pico_enable_stdio_usb(k6tta_keyer 0)
 pico_enable_stdio_uart(k6tta_keyer 0)
 
+set_target_properties(k6tta_keyer PROPERTIES OUTPUT_NAME "k6tta-keyer")
 pico_add_extra_outputs(k6tta_keyer)
 pico_set_program_name(k6tta_keyer "K6TTA Keyer")
 pico_set_program_version(k6tta_keyer "0.1")
