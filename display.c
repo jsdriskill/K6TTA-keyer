@@ -241,13 +241,12 @@ static void render_number_centered(const char *str, int area_h) {
     }
 }
 
-void display_update_ui(bool menu_active, uint8_t menu_item) {
+void display_render(bool menu_active, uint8_t menu_item) {
     memset(frame_buffer, 0x00, sizeof(frame_buffer));
     char line[32];
 
     if (msg_edit_active()) {
         render_message_editor();
-        flush_next_chunk();
         return;
     }
 
@@ -290,5 +289,19 @@ void display_update_ui(bool menu_active, uint8_t menu_item) {
         snprintf(line, sizeof(line), "ITEM %d/%d  CLICK=NEXT", menu_item + 1, MENU_ITEM_COUNT);
         display_render_text(line, 0, 48);
     }
+}
+
+/* Send at most one changed 32-byte chunk (about 0.7 ms of blocking I2C). The
+ * main loop calls this on every pass while the picture differs from the panel,
+ * so a changed picture reaches the panel within a few milliseconds instead of
+ * showing half old, half new for a long time, and keyer_tick() still runs
+ * between chunks. */
+void display_flush_step(void) {
     flush_next_chunk();
 }
+
+void display_update_ui(bool menu_active, uint8_t menu_item) {
+    display_render(menu_active, menu_item);
+    display_flush_step();
+}
+

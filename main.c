@@ -104,10 +104,11 @@ int main(void) {
         }
 
         uint32_t now = to_ms_since_boot(get_absolute_time());
-        if (now - last_ui_update >= 10) {   /* one 1 ms display chunk per call */
+        if (now - last_ui_update >= 10) {   /* rebuild the picture */
             last_ui_update = now;
-            display_update_ui(menu_active, menu_item);
+            display_render(menu_active, menu_item);
         }
+        display_flush_step();               /* one changed chunk per pass; nothing when up to date */
     }
 
     return 0;
