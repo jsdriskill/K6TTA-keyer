@@ -85,7 +85,7 @@ Open the CDC port (`/dev/ttyACM0`, any baud rate), send the host-open command (`
 
 ## Main screen
 
-The speed (large digits) and the mode are shown at boot. As soon as anything is sent, the screen switches to the text that has been sent, in large type: four lines of 11 characters, word wrapped, scrolling up one line at a time when the bottom line is full. It shows what the paddles sent (decoded with the same Morse table the WinKeyer sender uses; a pattern that is not a character shows `*`), plus stored messages and text sent from the WinKeyer port. The text stays until reboot. Turning the encoder shows the speed for 3 seconds (each turn restarts the timer), then the text returns. In bug and straight-key modes nothing is decoded and the speed screen stays. The TEXT setting in the setup menu (last page) turns the text display off, which leaves the speed screen on all the time.
+The speed (large digits) and the mode are shown at boot. As soon as anything is sent, the screen switches to the text that has been sent, in large type: four lines of 11 characters, word wrapped, scrolling up one line at a time when the bottom line is full. It shows what the paddles sent (decoded with the same Morse table the WinKeyer sender uses; `=` (BT) and `+` (AR) are in the table, `<SK>` is recognised as well, and a pattern that is not a character shows `*`), plus stored messages and text sent from the WinKeyer port. The text stays until reboot. Turning the encoder shows the speed for 3 seconds (each turn restarts the timer), then the text returns. In bug and straight-key modes nothing is decoded and the speed screen stays. The TEXT setting in the setup menu (last page) turns the text display off, which leaves the speed screen on all the time.
 
 ## Stored messages
 

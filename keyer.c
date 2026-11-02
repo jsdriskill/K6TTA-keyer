@@ -55,6 +55,10 @@ static const MorseEntry morse_table[] = {
     {'-',6,0x21},{'(',5,0x16},{')',6,0x2D},{'\'',6,0x1E},{'!',6,0x2B},{'&',5,0x08},
     {':',6,0x38},{';',6,0x2A},{'"',6,0x12},{'$',7,0x09},{'_',6,0x0D},{'@',6,0x1A},
 };
+/* Prosigns recognised when decoding paddle input only. */
+#define PROSIGN_SK_LEN   6
+#define PROSIGN_SK_BITS  0x05       /* ...-.- */
+
 #define MORSE_COUNT (sizeof(morse_table) / sizeof(morse_table[0]))
 
 static const MorseEntry *morse_lookup(char c) {
@@ -417,7 +421,16 @@ static void paddle_echo_service(uint32_t now, bool paddle_down) {
                 }
             }
         }
-        textview_put(decoded);
+        if (!pe_over && decoded == '*' && pe_len == PROSIGN_SK_LEN && pe_bits == PROSIGN_SK_BITS) {
+            /* <SK> (...-.-) is decode-only: it has no ASCII character, so it
+             * is shown as text and not added to the table the sender uses. */
+            for (const char *p = "<SK>"; *p; p++) {
+                textview_put(*p);
+            }
+            decoded = '*';                  /* nothing to echo to the host */
+        } else {
+            textview_put(decoded);
+        }
         if (echo_paddle && decoded != '*') {
             echo_put(decoded);
         }
