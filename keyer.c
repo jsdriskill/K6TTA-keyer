@@ -349,6 +349,21 @@ static void tx_start_next(uint32_t now) {
     }
 }
 
+/* Stored messages are loaded straight into the local send buffer. Core 0 only,
+ * so it does not touch the cross-core queue or its counters. */
+void keyer_msg_abort(void) {
+    tx_abort();
+}
+
+void keyer_msg_send(const char *text) {
+    tx_abort();
+    while (*text && tx_count < TX_LOCAL_SIZE) {
+        tx_buf[tx_head] = (uint8_t)*text++;
+        tx_head = (uint8_t)((tx_head + 1) % TX_LOCAL_SIZE);
+        tx_count++;
+    }
+}
+
 /* Called every tick while the sender is active. */
 static void tx_run(uint32_t now) {
     switch (tx_state) {

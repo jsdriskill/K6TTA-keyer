@@ -1,6 +1,7 @@
 #include "display.h"
 #include "font5x8.h"
 #include "font_large.h"
+#include "messages.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -113,6 +114,55 @@ static void set_pixel(int x, int y) {
     frame_buffer[(y / 8) * SCREEN_W + x] |= (uint8_t)(1u << (y % 8));
 }
 
+/* One 6-pixel character cell, optionally inverted (white block, dark glyph). */
+static void render_cell(char c, int x, int y, bool inverted) {
+    int page = y / 8;
+    if (page > 7 || x < 0 || x + 6 > SCREEN_W) {
+        return;
+    }
+    if (c < 32 || c > 126) {
+        c = '?';
+    }
+    const uint8_t *glyph = font5x8[c - 32];
+    for (int col = 0; col < 6; col++) {
+        uint8_t v = col < 5 ? glyph[col] : 0x00;
+        frame_buffer[page * SCREEN_W + x + col] = inverted ? (uint8_t)~v : v;
+    }
+}
+
+#define EDIT_CELLS_PER_LINE  21     /* 21 * 6 = 126 pixels */
+
+/* Message editor: the whole message wrapped over two lines, the cursor cell
+ * inverted. "done" shows as an inverted END, drawn inline so the characters
+ * after it move right rather than being hidden. */
+static void render_message_editor(void) {
+    MsgEditView v;
+    msg_edit_view(&v);
+    char line[32];
+    snprintf(line, sizeof(line), "MSG %d  %d/%d", v.slot + 1, v.pos + 1, MSG_MAX_LEN);
+    display_render_text(line, 0, 0);
+
+    int cell = 0;
+    for (int i = 0; i <= v.len && i < MSG_MAX_LEN; i++) {
+        bool cursor = (i == v.pos);
+        if (cursor && v.sel == 0) {
+            const char *end = "END";
+            for (int k = 0; k < 3; k++, cell++) {
+                render_cell(end[k], (cell % EDIT_CELLS_PER_LINE) * 6, 16 + 8 * (cell / EDIT_CELLS_PER_LINE), true);
+            }
+            continue;
+        }
+        char c = cursor ? msg_choice_char(v.sel) : (i < v.len ? v.text[i] : 0);
+        if (c == 0) {
+            break;
+        }
+        render_cell(c, (cell % EDIT_CELLS_PER_LINE) * 6, 16 + 8 * (cell / EDIT_CELLS_PER_LINE), cursor);
+        cell++;
+    }
+    display_render_text("KNOB=CHAR CLICK=SET", 0, 40);
+    display_render_text("B1=BACK  B2=FWD", 0, 56);
+}
+
 /* Draw one large digit with its top-left corner at (x, y). */
 static void draw_large_digit(int digit, int x, int y) {
     const uint8_t *bits = font_large_digits[digit];
@@ -154,6 +204,12 @@ static void render_number_centered(const char *str, int area_h) {
 void display_update_ui(bool menu_active, uint8_t menu_item) {
     memset(frame_buffer, 0x00, sizeof(frame_buffer));
     char line[32];
+
+    if (msg_edit_active()) {
+        render_message_editor();
+        flush_next_chunk();
+        return;
+    }
 
     if (!menu_active) {
         snprintf(line, sizeof(line), "%d", sys_config.wpm);

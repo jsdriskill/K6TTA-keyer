@@ -20,4 +20,8 @@ bool keyer_breakin(void);               /* a paddle cancelled a send (cleared by
 int keyer_echo_get(void);               /* next character to echo to the host, or -1 */
 void keyer_set_echo(bool serial, bool paddle);
 
+/* Stored messages: core 0 only (called from the main loop). */
+void keyer_msg_send(const char *text);  /* replace anything being sent with text (NUL-terminated) */
+void keyer_msg_abort(void);             /* stop sending now */
+
 #endif

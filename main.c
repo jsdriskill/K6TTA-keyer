@@ -5,6 +5,7 @@
 #include "encoder.h"
 #include "display.h"
 #include "keyer.h"
+#include "messages.h"
 #include "winkeyer.h"
 #include "usb_device.h"
 
@@ -34,6 +35,7 @@ int main(void) {
     encoder_init();
     display_init();
     keyer_init();
+    msg_init();
     winkeyer_init();
     usb_app_ready();
 
@@ -45,6 +47,17 @@ int main(void) {
         keyer_tick();
 
         int8_t delta = encoder_get_delta();
+        bool click = encoder_button_pressed();
+
+        /* Stored-message buttons and editor. While the editor is open it owns
+         * the encoder; the click that closes it must not also open the menu. */
+        bool was_editing = msg_edit_active();
+        msg_service(!menu_active, delta, click);
+        if (was_editing) {
+            delta = 0;
+            click = false;
+        }
+
         if (delta != 0) {
             if (!menu_active) {
                 sys_config.wpm = (uint8_t)clampi((int)sys_config.wpm + delta, 5, 60);
@@ -76,7 +89,7 @@ int main(void) {
             }
         }
 
-        if (encoder_button_pressed()) {
+        if (click) {
             if (!menu_active) {
                 menu_active = true;
                 menu_item = 0;

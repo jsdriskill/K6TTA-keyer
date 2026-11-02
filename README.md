@@ -13,6 +13,7 @@ CW paddle keyer for RP2040 with SSD1306 UI, rotary encoder setup, flash-backed s
 | Encoder A | 6 |
 | Encoder B | 7 |
 | Encoder switch | 8 |
+| Message button 1 / 2 / 3 (active low, pull-up) | 9 / 10 / 11 |
 | OLED SDA (I2C0) | 12 |
 | OLED SCL | 13 |
 | SSD1306 address | 0x3C |
@@ -81,3 +82,12 @@ Open the CDC port (`/dev/ttyACM0`, any baud rate), send the host-open command (`
 
 - Encoder: WPM on the home screen; current menu value in setup
 - Click: enter setup, then advance items; last click saves to flash and returns home
+
+## Stored messages
+
+Three messages of up to 32 characters each, on the buttons at GPIO 9, 10 and 11 (to ground).
+
+- Short press: send the message at the current speed. Press again while it is sending to abort. Touching a paddle also aborts. A slot with no message goes straight to edit mode.
+- Hold 3 seconds: edit that slot. Button presses are ignored while the setup menu is open.
+- Editing starts from the stored message. The encoder chooses the character at the cursor (done, space, A-Z, 0-9, `. , ? /`), and the encoder button stores it and moves on. Button 1 / button 2 move the cursor back / forward without changing anything (an unstored change is dropped). Choosing "done" and clicking saves the message up to the cursor; "done" at the first position leaves the slot empty. Filling all 32 positions saves and exits automatically.
+- The messages live in the settings flash page; saving takes about 50 ms, during which USB audio drops out.

@@ -10,6 +10,11 @@
 #define PIN_TX_KEY         4
 #define PIN_SIDETONE_PWM   5
 
+/* Stored-message buttons: active low, internal pull-ups */
+#define PIN_MSG1           9
+#define PIN_MSG2           10
+#define PIN_MSG3           11
+
 #define PIN_ENC_A          6
 #define PIN_ENC_B          7
 #define PIN_ENC_SW         8
@@ -25,6 +30,9 @@
 #define PIN_I2C_SDA        12
 #define PIN_I2C_SCL        13
 #define SSD1306_ADDR       0x3C
+
+#define MSG_SLOTS    3
+#define MSG_MAX_LEN  32
 
 typedef enum {
     KEYER_MODE_IAMBIC_B = 0,
@@ -46,6 +54,7 @@ typedef struct __attribute__((packed)) {
     uint8_t  autospace;
     uint8_t  first_extension;
     uint8_t  sidetone_vol;      /* 1..10 (10 = full); appended so older saved settings stay valid */
+    char     messages[MSG_SLOTS][MSG_MAX_LEN];   /* stored messages: NUL-terminated unless full; empty = first byte 0 */
 } ConfigSettings;
 
 #define SIDETONE_VOL_MIN      1

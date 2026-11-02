@@ -25,6 +25,7 @@ void settings_init(void) {
         sys_config.autospace = 0;
         sys_config.first_extension = 0;
         sys_config.sidetone_vol = SIDETONE_VOL_DEFAULT;
+        memset(sys_config.messages, 0, sizeof(sys_config.messages));
         settings_save();
     }
 
@@ -32,6 +33,21 @@ void settings_init(void) {
      * 0xFF): keep the previous loudness, which was the maximum. */
     if (sys_config.sidetone_vol < SIDETONE_VOL_MIN || sys_config.sidetone_vol > SIDETONE_VOL_MAX) {
         sys_config.sidetone_vol = SIDETONE_VOL_DEFAULT;
+    }
+
+    /* Older saves have erased flash (0xFF) where the messages now live; any
+     * slot holding a character that cannot be sent is cleared. */
+    for (int s = 0; s < MSG_SLOTS; s++) {
+        char *m = sys_config.messages[s];
+        for (int i = 0; i < MSG_MAX_LEN && m[i] != 0; i++) {
+            char c = m[i];
+            bool ok = c == ' ' || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') ||
+                      c == '.' || c == ',' || c == '?' || c == '/';
+            if (!ok) {
+                memset(m, 0, MSG_MAX_LEN);
+                break;
+            }
+        }
     }
 }
 
