@@ -10,7 +10,7 @@
  *    An empty slot goes to edit mode instead.
  *  - hold 3 s: edit that slot.
  *
- * Edit mode: the encoder picks the character at the cursor, the encoder
+ * Edit mode starts with the cursor after the stored text. The encoder picks the character at the cursor, the encoder
  * button stores it and advances; button 1 / button 2 move the cursor back /
  * forward without changing anything. Selecting "done" and pressing the
  * encoder button truncates the message at the cursor and saves it. Filling

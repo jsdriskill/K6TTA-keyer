@@ -114,33 +114,75 @@ static void set_pixel(int x, int y) {
     frame_buffer[(y / 8) * SCREEN_W + x] |= (uint8_t)(1u << (y % 8));
 }
 
-/* One 6-pixel character cell, optionally inverted (white block, dark glyph). */
-static void render_cell(char c, int x, int y, bool inverted) {
-    int page = y / 8;
-    if (page > 7 || x < 0 || x + 6 > SCREEN_W) {
+static void clear_pixel(int x, int y) {
+    if (x < 0 || x >= SCREEN_W || y < 0 || y >= SCREEN_H) {
         return;
     }
+    frame_buffer[(y / 8) * SCREEN_W + x] &= (uint8_t)~(1u << (y % 8));
+}
+
+/* Message editor characters: the 5x8 font at 2x, in a cell 11 px wide (10 px
+ * glyph + 1 px gap) and 16 px tall. The glyph sits one pixel down so that
+ * rows 0 and 15 stay blank. Only the comma uses the font's bottom row, and
+ * that row is clipped to its first pixel row. The cursor is a white box one
+ * pixel larger than the glyph on every side (12 x 16 px, overlapping only the
+ * blank gap columns of its neighbours) with the glyph cut out of it. */
+#define BIG_PITCH_X       11
+#define BIG_PITCH_Y       16
+#define EDIT_CELLS_PER_LINE  11     /* 11 * 11 = 121 pixels */
+#define EDIT_LINES        4         /* 4 * 16 = the whole screen */
+#define EDIT_X0           3
+
+static void render_big_cell(char c, int x, int y, bool inverted) {
     if (c < 32 || c > 126) {
         c = '?';
     }
+    if (inverted) {
+        for (int yy = y; yy < y + BIG_PITCH_Y; yy++) {
+            for (int xx = x - 1; xx <= x + 10; xx++) {
+                set_pixel(xx, yy);
+            }
+        }
+    }
     const uint8_t *glyph = font5x8[c - 32];
-    for (int col = 0; col < 6; col++) {
-        uint8_t v = col < 5 ? glyph[col] : 0x00;
-        frame_buffer[page * SCREEN_W + x + col] = inverted ? (uint8_t)~v : v;
+    for (int col = 0; col < 5; col++) {
+        for (int row = 0; row < 8; row++) {
+            if (!((glyph[col] >> row) & 1)) {
+                continue;
+            }
+            for (int dy = 0; dy < 2; dy++) {
+                int py = y + 1 + 2 * row + dy;
+                if (py >= y + BIG_PITCH_Y) {
+                    continue;
+                }
+                for (int dx = 0; dx < 2; dx++) {
+                    if (inverted) {
+                        clear_pixel(x + 2 * col + dx, py);
+                    } else {
+                        set_pixel(x + 2 * col + dx, py);
+                    }
+                }
+            }
+        }
     }
 }
 
-#define EDIT_CELLS_PER_LINE  21     /* 21 * 6 = 126 pixels */
+static void render_edit_cell(char c, int cell, bool inverted) {
+    if (cell >= EDIT_CELLS_PER_LINE * EDIT_LINES) {
+        return;
+    }
+    render_big_cell(c, EDIT_X0 + (cell % EDIT_CELLS_PER_LINE) * BIG_PITCH_X,
+                    (cell / EDIT_CELLS_PER_LINE) * BIG_PITCH_Y, inverted);
+}
 
-/* Message editor: the whole message wrapped over two lines, the cursor cell
- * inverted. "done" shows as an inverted END, drawn inline so the characters
- * after it move right rather than being hidden. */
+/* Message editor: the whole message wrapped over up to four lines, the cursor
+ * cell inverted. "done" shows as an inverted END, drawn inline so the
+ * characters after it move right rather than being hidden. A full message
+ * with END in it needs 34 cells; 4 lines hold 44. The four lines use the whole
+ * display, so there is no room for a title or key hints. */
 static void render_message_editor(void) {
     MsgEditView v;
     msg_edit_view(&v);
-    char line[32];
-    snprintf(line, sizeof(line), "MSG %d  %d/%d", v.slot + 1, v.pos + 1, MSG_MAX_LEN);
-    display_render_text(line, 0, 0);
 
     int cell = 0;
     for (int i = 0; i <= v.len && i < MSG_MAX_LEN; i++) {
@@ -148,7 +190,7 @@ static void render_message_editor(void) {
         if (cursor && v.sel == 0) {
             const char *end = "END";
             for (int k = 0; k < 3; k++, cell++) {
-                render_cell(end[k], (cell % EDIT_CELLS_PER_LINE) * 6, 16 + 8 * (cell / EDIT_CELLS_PER_LINE), true);
+                render_edit_cell(end[k], cell, true);
             }
             continue;
         }
@@ -156,11 +198,9 @@ static void render_message_editor(void) {
         if (c == 0) {
             break;
         }
-        render_cell(c, (cell % EDIT_CELLS_PER_LINE) * 6, 16 + 8 * (cell / EDIT_CELLS_PER_LINE), cursor);
+        render_edit_cell(c, cell, cursor);
         cell++;
     }
-    display_render_text("KNOB=CHAR CLICK=SET", 0, 40);
-    display_render_text("B1=BACK  B2=FWD", 0, 56);
 }
 
 /* Draw one large digit with its top-left corner at (x, y). */

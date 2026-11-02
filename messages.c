@@ -47,8 +47,10 @@ static void edit_begin(int slot) {
     memcpy(e_text, sys_config.messages[slot], MSG_MAX_LEN);
     e_text[MSG_MAX_LEN] = 0;
     e_len = (uint8_t)strlen(e_text);
-    e_pos = 0;
-    e_sel = (uint8_t)sel_at(0);
+    /* Start after the last stored character (on "done"), ready to append or to
+     * step back; a full message starts on its last character. */
+    e_pos = e_len < MSG_MAX_LEN ? e_len : MSG_MAX_LEN - 1;
+    e_sel = (uint8_t)sel_at(e_pos);
     editing = true;
 }
 
