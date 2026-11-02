@@ -61,6 +61,7 @@ int main(void) {
         if (delta != 0) {
             if (!menu_active) {
                 sys_config.wpm = (uint8_t)clampi((int)sys_config.wpm + delta, 5, 60);
+                display_speed_view();
             } else if (menu_item == 0) {
                 int mode = ((int)sys_config.mode + delta) % 5;
                 if (mode < 0) {

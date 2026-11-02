@@ -2,6 +2,7 @@
 #include "font5x8.h"
 #include "font_large.h"
 #include "messages.h"
+#include "textview.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -175,6 +176,43 @@ static void render_edit_cell(char c, int cell, bool inverted) {
                     (cell / EDIT_CELLS_PER_LINE) * BIG_PITCH_Y, inverted);
 }
 
+/* After the encoder is turned the speed is shown for this long, then the text again. */
+#define SPEED_VIEW_MS 3000
+static uint32_t speed_view_until;
+static bool speed_view_on;
+
+void display_speed_view(void) {
+    speed_view_until = to_ms_since_boot(get_absolute_time()) + SPEED_VIEW_MS;
+    speed_view_on = true;
+}
+
+static bool show_text_view(void) {
+    if (!textview_started()) {
+        return false;                       /* speed at boot, until the first character */
+    }
+    if (sys_config.mode == KEYER_MODE_STRAIGHT || sys_config.mode == KEYER_MODE_BUG) {
+        return false;                       /* nothing is decoded in these modes */
+    }
+    if (speed_view_on) {
+        if ((int32_t)(to_ms_since_boot(get_absolute_time()) - speed_view_until) < 0) {
+            return false;
+        }
+        speed_view_on = false;
+    }
+    return true;
+}
+
+static void render_text_view(void) {
+    for (int r = 0; r < TEXT_ROWS; r++) {
+        const char *line = textview_line(r);
+        for (int c = 0; c < TEXT_COLS; c++) {
+            if (line[c] != ' ') {
+                render_edit_cell(line[c], r * EDIT_CELLS_PER_LINE + c, false);
+            }
+        }
+    }
+}
+
 /* Message editor: the whole message wrapped over up to four lines, the cursor
  * cell inverted. "done" shows as an inverted END, drawn inline so the
  * characters after it move right rather than being hidden. A full message
@@ -247,6 +285,11 @@ void display_render(bool menu_active, uint8_t menu_item) {
 
     if (msg_edit_active()) {
         render_message_editor();
+        return;
+    }
+
+    if (!menu_active && show_text_view()) {
+        render_text_view();
         return;
     }
 

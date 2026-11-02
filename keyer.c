@@ -1,4 +1,5 @@
 #include "keyer.h"
+#include "textview.h"
 
 #include "pico/stdlib.h"
 #include "pico/util/queue.h"
@@ -86,6 +87,7 @@ static volatile bool echo_serial, echo_paddle;
 
 /* paddle decoder for paddle echo */
 static uint8_t pe_len, pe_bits;
+static bool pe_over;                    /* the character being sent had too many elements */
 static bool pe_space_pending;
 static uint32_t pe_last_off;
 static uint32_t tick_now;
@@ -227,7 +229,8 @@ bool keyer_is_busy(void) {
 static void pe_record(bool dash) {
     pe_space_pending = false;
     if (pe_len >= 7) {
-        pe_len = 0;                 /* too long to be a character: start over */
+        pe_over = true;             /* too long to be a character: shown as '*' when it ends */
+        return;
     }
     pe_bits = (uint8_t)((pe_bits << 1) | (dash ? 1 : 0));
     pe_len++;
@@ -330,6 +333,7 @@ static void tx_start_next(uint32_t now) {
             tx_timer = now + 4 * dit_unit();
             tx_cur = NULL;
             tx_state = TX_GAP;
+            textview_put(' ');
             if (echo_serial) {
                 echo_put(' ');
             }
@@ -341,6 +345,7 @@ static void tx_start_next(uint32_t now) {
         }
         tx_cur = m;
         tx_idx = 0;
+        textview_put(m->ch);
         if (echo_serial) {
             echo_put(m->ch);
         }
@@ -394,6 +399,7 @@ static void tx_run(uint32_t now) {
 static void paddle_echo_service(uint32_t now, bool paddle_down) {
     if (sys_config.mode == KEYER_MODE_STRAIGHT || sys_config.mode == KEYER_MODE_BUG) {
         pe_len = 0;
+        pe_over = false;
         pe_space_pending = false;
         return;
     }
@@ -402,18 +408,25 @@ static void paddle_echo_service(uint32_t now, bool paddle_down) {
     }
     uint32_t idle = now - pe_last_off;
     if (pe_len > 0 && idle >= 2 * dit_unit()) {
-        if (echo_paddle) {
+        char decoded = '*';                 /* unknown or too long */
+        if (!pe_over) {
             for (unsigned i = 0; i < MORSE_COUNT; i++) {
                 if (morse_table[i].len == pe_len && morse_table[i].bits == pe_bits) {
-                    echo_put(morse_table[i].ch);
+                    decoded = morse_table[i].ch;
                     break;
                 }
             }
         }
+        textview_put(decoded);
+        if (echo_paddle && decoded != '*') {
+            echo_put(decoded);
+        }
         pe_len = 0;
         pe_bits = 0;
+        pe_over = false;
         pe_space_pending = true;
     } else if (pe_space_pending && idle >= 6 * dit_unit()) {
+        textview_put(' ');
         if (echo_paddle) {
             echo_put(' ');
         }

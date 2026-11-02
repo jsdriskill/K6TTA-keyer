@@ -83,6 +83,10 @@ Open the CDC port (`/dev/ttyACM0`, any baud rate), send the host-open command (`
 - Encoder: WPM on the home screen; current menu value in setup
 - Click: enter setup, then advance items; last click saves to flash and returns home
 
+## Main screen
+
+The speed (large digits) and the mode are shown at boot. As soon as anything is sent, the screen switches to the text that has been sent, in large type: four lines of 11 characters, word wrapped, scrolling up one line at a time when the bottom line is full. It shows what the paddles sent (decoded with the same Morse table the WinKeyer sender uses; a pattern that is not a character shows `*`), plus stored messages and text sent from the WinKeyer port. The text stays until reboot. Turning the encoder shows the speed for 3 seconds (each turn restarts the timer), then the text returns. In bug and straight-key modes nothing is decoded and the speed screen stays.
+
 ## Stored messages
 
 Three messages of up to 32 characters each, on the buttons at GPIO 9, 10 and 11 (to ground).

@@ -45,6 +45,7 @@ add_executable(k6tta_keyer
     winkeyer.c
     display.c
     messages.c
+    textview.c
     encoder.c
     flash_settings.c
     usb_device.c
