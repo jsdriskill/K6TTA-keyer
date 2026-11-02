@@ -61,6 +61,24 @@ static const MorseEntry morse_table[] = {
 
 #define MORSE_COUNT (sizeof(morse_table) / sizeof(morse_table[0]))
 
+/* Show a character on the main screen. The prosigns that the table holds as
+ * punctuation (BT as '=', AR as '+') are shown in angle brackets. */
+static void show_text(const char *str) {
+    while (*str) {
+        textview_put(*str++);
+    }
+}
+
+static void show_char(char c) {
+    if (c == '=') {
+        show_text("<BT>");
+    } else if (c == '+') {
+        show_text("<AR>");
+    } else {
+        textview_put(c);
+    }
+}
+
 static const MorseEntry *morse_lookup(char c) {
     if (c >= 'a' && c <= 'z') {
         c = (char)(c - 'a' + 'A');
@@ -349,7 +367,7 @@ static void tx_start_next(uint32_t now) {
         }
         tx_cur = m;
         tx_idx = 0;
-        textview_put(m->ch);
+        show_char(m->ch);
         if (echo_serial) {
             echo_put(m->ch);
         }
@@ -424,12 +442,10 @@ static void paddle_echo_service(uint32_t now, bool paddle_down) {
         if (!pe_over && decoded == '*' && pe_len == PROSIGN_SK_LEN && pe_bits == PROSIGN_SK_BITS) {
             /* <SK> (...-.-) is decode-only: it has no ASCII character, so it
              * is shown as text and not added to the table the sender uses. */
-            for (const char *p = "<SK>"; *p; p++) {
-                textview_put(*p);
-            }
+            show_text("<SK>");
             decoded = '*';                  /* nothing to echo to the host */
         } else {
-            textview_put(decoded);
+            show_char(decoded);
         }
         if (echo_paddle && decoded != '*') {
             echo_put(decoded);
