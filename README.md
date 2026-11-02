@@ -18,7 +18,7 @@ CW paddle keyer for RP2040 with SSD1306 UI, rotary encoder setup, flash-backed s
 | OLED SCL | 13 |
 | SSD1306 address | 0x3C |
 
-**Sidetone (pin 5).** A sine wave made with the PWM as a one-pin DAC: 11-bit steps, about 61 kHz carrier and sample rate, a 256-point sine table with linear interpolation, and 4 ms attack/release ramps (no key clicks). The pin swings between 0 V and 3.3 V, so use a series resistor and, for a speaker, a coupling capacitor; a piezo can be driven directly. A small low-pass (for example 1 kohm + 100 nF) removes the 61 kHz carrier if you feed an amplifier. The SIDE VOL setting (1-10) scales the amplitude linearly (1 = 10 % of the maximum swing). The wave comes from a PWM wrap interrupt on core 0, about 3 % of that core; the pin is parked low whenever the tone is off.
+**Sidetone (pin 5).** A sine wave made with the PWM as a one-pin DAC: 11-bit steps, about 61 kHz carrier and sample rate, a 256-point sine table with linear interpolation, and 4 ms attack/release ramps (no key clicks). The pin swings between 0 V and 3.3 V, so use a series resistor and, for a speaker, a coupling capacitor; a piezo can be driven directly. A small low-pass (for example 1 kohm + 100 nF) removes the 61 kHz carrier if you feed an amplifier. The tone is always at full amplitude, so scale it down with the series resistor or an external volume control. The wave comes from a PWM wrap interrupt on core 0, about 3 % of that core; the pin is parked low whenever the tone is off.
 
 ## Build
 
@@ -85,7 +85,7 @@ Open the CDC port (`/dev/ttyACM0`, any baud rate), send the host-open command (`
 
 ## Main screen
 
-The speed (large digits) and the mode are shown at boot. As soon as anything is sent, the screen switches to the text that has been sent, in large type: four lines of 11 characters, word wrapped, scrolling up one line at a time when the bottom line is full. It shows what the paddles sent (decoded with the same Morse table the WinKeyer sender uses; a pattern that is not a character shows `*`), plus stored messages and text sent from the WinKeyer port. The text stays until reboot. Turning the encoder shows the speed for 3 seconds (each turn restarts the timer), then the text returns. In bug and straight-key modes nothing is decoded and the speed screen stays.
+The speed (large digits) and the mode are shown at boot. As soon as anything is sent, the screen switches to the text that has been sent, in large type: four lines of 11 characters, word wrapped, scrolling up one line at a time when the bottom line is full. It shows what the paddles sent (decoded with the same Morse table the WinKeyer sender uses; a pattern that is not a character shows `*`), plus stored messages and text sent from the WinKeyer port. The text stays until reboot. Turning the encoder shows the speed for 3 seconds (each turn restarts the timer), then the text returns. In bug and straight-key modes nothing is decoded and the speed screen stays. The TEXT setting in the setup menu (last page) turns the text display off, which leaves the speed screen on all the time.
 
 ## Stored messages
 

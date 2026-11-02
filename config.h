@@ -53,13 +53,10 @@ typedef struct __attribute__((packed)) {
     uint8_t  paddle_swap;
     uint8_t  autospace;
     uint8_t  first_extension;
-    uint8_t  sidetone_vol;      /* 1..10 (10 = full); appended so older saved settings stay valid */
+    uint8_t  show_text;         /* 1 = decoded text on the main screen, 0 = speed only. This byte held the
+                                   sidetone volume (1..10) in older saves, so anything but 0 reads as on. */
     char     messages[MSG_SLOTS][MSG_MAX_LEN];   /* stored messages: NUL-terminated unless full; empty = first byte 0 */
 } ConfigSettings;
-
-#define SIDETONE_VOL_MIN      1
-#define SIDETONE_VOL_MAX      10
-#define SIDETONE_VOL_DEFAULT  SIDETONE_VOL_MAX
 
 extern ConfigSettings sys_config;
 

@@ -85,8 +85,7 @@ int main(void) {
             } else if (menu_item == 7) {
                 sys_config.first_extension = (uint8_t)clampi((int)sys_config.first_extension + delta, 0, 25);
             } else {
-                sys_config.sidetone_vol = (uint8_t)clampi((int)sys_config.sidetone_vol + delta, SIDETONE_VOL_MIN, SIDETONE_VOL_MAX);
-                keyer_update_sidetone_volume();
+                sys_config.show_text = delta > 0 ? 1 : 0;
             }
         }
 

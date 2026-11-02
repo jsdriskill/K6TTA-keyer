@@ -24,15 +24,15 @@ void settings_init(void) {
         sys_config.paddle_swap = 0;
         sys_config.autospace = 0;
         sys_config.first_extension = 0;
-        sys_config.sidetone_vol = SIDETONE_VOL_DEFAULT;
+        sys_config.show_text = 1;
         memset(sys_config.messages, 0, sizeof(sys_config.messages));
         settings_save();
     }
 
-    /* Settings saved by older firmware have no volume byte (erased flash reads
-     * 0xFF): keep the previous loudness, which was the maximum. */
-    if (sys_config.sidetone_vol < SIDETONE_VOL_MIN || sys_config.sidetone_vol > SIDETONE_VOL_MAX) {
-        sys_config.sidetone_vol = SIDETONE_VOL_DEFAULT;
+    /* This byte was the sidetone volume (1..10) in older saves, or erased flash
+     * (0xFF): only an explicit 0 turns the text off. */
+    if (sys_config.show_text > 1) {
+        sys_config.show_text = 1;
     }
 
     /* Older saves have erased flash (0xFF) where the messages now live; any

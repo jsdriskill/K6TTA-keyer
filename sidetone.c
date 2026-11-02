@@ -40,7 +40,7 @@ static volatile uint32_t phase;       /* 32 bit phase accumulator */
 static volatile uint32_t phase_inc;
 static volatile uint32_t env;         /* 0..65535 */
 static volatile uint32_t env_step;
-static volatile uint32_t gain;        /* 0..65535, from the volume setting */
+static volatile uint32_t gain = 65535u; /* full 0..Vdd swing: there is no volume setting */
 static volatile bool want;            /* key down and sidetone enabled */
 static volatile bool running;         /* PWM slice running (tone sounding or fading) */
 static volatile bool park_pending;    /* slice stopped, pin still to be parked low */
@@ -98,15 +98,6 @@ void keyer_update_sidetone_freq(void) {
     /* sample rate = system clock / (wrap + 1) */
     uint32_t clk = clock_get_hz(clk_sys);
     phase_inc = (uint32_t)(((uint64_t)freq << 32) * (SIDETONE_PWM_WRAP + 1u) / clk);
-}
-
-void keyer_update_sidetone_volume(void) {
-    uint32_t vol = sys_config.sidetone_vol;
-    if (vol < SIDETONE_VOL_MIN || vol > SIDETONE_VOL_MAX) {
-        vol = SIDETONE_VOL_MAX;
-    }
-    /* amplitude: 1 = 10 % of the maximum swing, 10 = the full 0..Vdd swing */
-    gain = 65535u * vol / SIDETONE_VOL_MAX;
 }
 
 void keyer_set_sidetone(bool active) {
@@ -167,7 +158,6 @@ void sidetone_init(void) {
     pwm_set_chan_level(slice, chan, 0);
 
     keyer_update_sidetone_freq();
-    keyer_update_sidetone_volume();
 
     pwm_clear_irq(slice);
     pwm_set_irq_enabled(slice, true);

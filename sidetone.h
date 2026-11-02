@@ -4,8 +4,8 @@
 #include <stdbool.h>
 
 /* Local sidetone: a sine wave on PIN_SIDETONE_PWM, made by PWM used as a
- * one-pin DAC. keyer_set_sidetone() / keyer_update_sidetone_freq() /
- * keyer_update_sidetone_volume() (keyer.h) are implemented in sidetone.c. */
+ * one-pin DAC. keyer_set_sidetone() / keyer_update_sidetone_freq() (keyer.h)
+ * are implemented in sidetone.c. */
 void sidetone_init(void);
 void sidetone_service(void);        /* call often from the main loop (core 0) */
 

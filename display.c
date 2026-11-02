@@ -187,6 +187,9 @@ void display_speed_view(void) {
 }
 
 static bool show_text_view(void) {
+    if (!sys_config.show_text) {
+        return false;                       /* turned off in setup */
+    }
     if (!textview_started()) {
         return false;                       /* speed at boot, until the first character */
     }
@@ -325,7 +328,7 @@ void display_render(bool menu_active, uint8_t menu_item) {
                 snprintf(line, sizeof(line), "1ST EXT: %dms", sys_config.first_extension);
                 break;
             default:
-                snprintf(line, sizeof(line), "SIDE VOL: %d/10", sys_config.sidetone_vol);
+                snprintf(line, sizeof(line), "TEXT: %s", sys_config.show_text ? "ON" : "OFF");
                 break;
         }
         display_render_text(line, 0, 24);
