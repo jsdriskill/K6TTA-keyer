@@ -42,6 +42,7 @@ int main(void) {
     bool menu_active = false;
     uint8_t menu_item = 0;
     uint32_t last_ui_update = 0;
+    uint8_t last_wpm = sys_config.wpm;
 
     while (1) {
         keyer_tick();
@@ -101,6 +102,13 @@ int main(void) {
                     settings_save();
                 }
             }
+        }
+
+        /* A speed change from the host (WinKeyer speed command) also shows the
+         * speed for a few seconds, like turning the encoder does. */
+        if (sys_config.wpm != last_wpm) {
+            last_wpm = sys_config.wpm;
+            display_speed_view();
         }
 
         uint32_t now = to_ms_since_boot(get_absolute_time());
