@@ -62,7 +62,6 @@ target_link_libraries(k6tta_keyer
     hardware_gpio
     hardware_i2c
     hardware_pwm
-    hardware_irq
     hardware_flash
     hardware_sync
     pico_multicore

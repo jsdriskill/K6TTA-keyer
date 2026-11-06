@@ -682,7 +682,6 @@ static bool debounce(Debounce *d, bool in, uint32_t now) {
 }
 
 void keyer_tick(void) {
-    sidetone_service();
     uint32_t now = to_ms_since_boot(get_absolute_time());
 
     bool pin_dit  = debounce(&deb_dit,  !gpio_get(PIN_PADDLE_DIT),  now);
