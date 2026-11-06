@@ -24,6 +24,10 @@ static bool last_was_dit = false;
 static bool bug_dah_flag;               /* bug mode: dah key-down is in progress */
 static bool first_element = true;
 
+typedef struct { bool state, cand; uint32_t since; } Debounce;
+static Debounce deb_dit, deb_dash;
+static bool paddles_armed;              /* false from power-up until both paddles have been released */
+
 /* ------------------------------------------------------------------------
  * Text sender (used by the WinKeyer serial port)
  *
@@ -240,6 +244,18 @@ void keyer_init(void) {
     gpio_init(PIN_TX_KEY);
     gpio_set_dir(PIN_TX_KEY, GPIO_OUT);
     gpio_put(PIN_TX_KEY, 0);
+
+    /* The internal pull-ups need time to charge whatever capacitance is on the
+     * paddle lines (filter capacitors in the jack, a long cable). Read too soon
+     * and both paddles look pressed, which sends a dit and a dah: an "A" at
+     * power-up. Wait (at most 50 ms) for both lines to go high. A paddle really
+     * held down stays low and is dealt with by paddles_armed in keyer_tick(). */
+    for (int i = 0; i < 500 && (!gpio_get(PIN_PADDLE_DIT) || !gpio_get(PIN_PADDLE_DASH)); i++) {
+        sleep_us(100);
+    }
+    deb_dit.state = deb_dit.cand = !gpio_get(PIN_PADDLE_DIT);       /* start from what is really there */
+    deb_dash.state = deb_dash.cand = !gpio_get(PIN_PADDLE_DASH);
+    paddles_armed = false;
 
     sidetone_init();
 }
@@ -668,8 +684,6 @@ static void keyer_paddles(uint32_t now, bool raw_dit, bool raw_dash) {
 
 /* Contact debounce: a level is accepted once it has been stable for this long. */
 #define PADDLE_DEBOUNCE_MS 2
-typedef struct { bool state, cand; uint32_t since; } Debounce;
-static Debounce deb_dit, deb_dash;
 
 static bool debounce(Debounce *d, bool in, uint32_t now) {
     if (in != d->cand) {
@@ -686,6 +700,15 @@ void keyer_tick(void) {
 
     bool pin_dit  = debounce(&deb_dit,  !gpio_get(PIN_PADDLE_DIT),  now);
     bool pin_dash = debounce(&deb_dash, !gpio_get(PIN_PADDLE_DASH), now);
+    /* After power-up the paddles are ignored until both have been seen released,
+     * so contacts already closed at boot (or a line still settling) send nothing. */
+    if (!paddles_armed) {
+        if (!pin_dit && !pin_dash) {
+            paddles_armed = true;
+        } else {
+            pin_dit = pin_dash = false;
+        }
+    }
     bool raw_dit  = sys_config.paddle_swap ? pin_dash : pin_dit;
     bool raw_dash = sys_config.paddle_swap ? pin_dit  : pin_dash;
     bool paddle_down = raw_dit || raw_dash;

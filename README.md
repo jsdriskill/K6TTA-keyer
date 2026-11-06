@@ -83,6 +83,10 @@ Open the CDC port (`/dev/ttyACM0`, any baud rate), send the host-open command (`
 - Encoder: WPM on the home screen; current menu value in setup
 - Click: enter setup, then advance items; last click saves to flash and returns home
 
+## Power-up
+
+The paddle inputs are read through the RP2040's internal pull-ups, which take a moment to charge any capacitance on the lines (filter capacitors, a long cable). The keyer waits up to 50 ms at start-up for both lines to go high, and then ignores the paddles until it has seen both released, so contacts that are closed or still settling at power-up never send anything.
+
 ## Main screen
 
 The speed (large digits) and the mode are shown at boot. As soon as anything is sent, the screen switches to the text that has been sent, in large type: four lines of 11 characters, word wrapped, scrolling up one line at a time when the bottom line is full. It shows what the paddles sent (decoded with the same Morse table the WinKeyer sender uses; the prosigns BT, AR and SK are shown as `<BT>`, `<AR>` and `<SK>`, and a pattern that is not a character shows `*`), plus stored messages and text sent from the WinKeyer port. The text stays until reboot. Turning the encoder, or a speed change from the WinKeyer host, shows the speed for 3 seconds (each change restarts the timer), then the text returns. In bug and straight-key modes nothing is decoded and the speed screen stays. The TEXT setting in the setup menu (last page) turns the text display off, which leaves the speed screen on all the time.
