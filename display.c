@@ -338,8 +338,10 @@ static void render_menu_page(uint8_t menu_item) {
             snprintf(value, sizeof(value), "%s", sys_config.show_text ? "ON" : "OFF");
             break;
     }
-    render_big_string_centered(label, 0, false);
-    render_big_string_centered(value, BIG_PITCH_Y, true);
+    /* The two large lines are centred vertically on the display (rows 16..47). */
+    int y0 = (SCREEN_H - 2 * BIG_PITCH_Y) / 2;
+    render_big_string_centered(label, y0, false);
+    render_big_string_centered(value, y0 + BIG_PITCH_Y, true);
 
     char page[16];
     snprintf(page, sizeof(page), "%d/%d", menu_item + 1, MENU_ITEM_COUNT);
