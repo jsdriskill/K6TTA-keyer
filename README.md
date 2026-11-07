@@ -6,8 +6,8 @@ CW paddle keyer for RP2040 with SSD1306 UI, rotary encoder setup, flash-backed s
 
 | Function | GPIO |
 | --- | --- |
-| Dit paddle (active low, pull-up) | 2 |
-| Dash paddle | 3 |
+| Dit paddle (active low, external pull-up) | 2 |
+| Dash paddle (active low, external pull-up) | 3 |
 | TX key out | 4 |
 | Sidetone (PWM sine) | 5 |
 | Encoder A | 6 |
@@ -85,7 +85,7 @@ Open the CDC port (`/dev/ttyACM0`, any baud rate), send the host-open command (`
 
 ## Power-up
 
-The paddle inputs are read through the RP2040's internal pull-ups, which take a moment to charge any capacitance on the lines (filter capacitors, a long cable). The keyer waits up to 50 ms at start-up for both lines to go high, and then ignores the paddles until it has seen both released, so contacts that are closed or still settling at power-up never send anything.
+The paddle inputs (GPIO 2 and 3) are plain inputs with the internal pull-up and pull-down both off, so each needs an external pull-up resistor to 3.3 V (10 kohm is typical; never 5 V). Without it the lines float and the keyer sees random paddle contacts. The resistor takes a moment to charge any capacitance on the lines (filter capacitors, a long cable). The keyer waits up to 50 ms at start-up for both lines to go high, and then ignores the paddles until it has seen both released, so contacts that are closed or still settling at power-up never send anything.
 
 ## Setup menu
 

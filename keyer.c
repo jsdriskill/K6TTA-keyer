@@ -235,18 +235,18 @@ void keyer_init(void) {
 
     gpio_init(PIN_PADDLE_DIT);
     gpio_set_dir(PIN_PADDLE_DIT, GPIO_IN);
-    gpio_pull_up(PIN_PADDLE_DIT);
+    gpio_disable_pulls(PIN_PADDLE_DIT);     /* external pull-up resistors; also turns off the pad's reset-state pull-down */
 
     gpio_init(PIN_PADDLE_DASH);
     gpio_set_dir(PIN_PADDLE_DASH, GPIO_IN);
-    gpio_pull_up(PIN_PADDLE_DASH);
+    gpio_disable_pulls(PIN_PADDLE_DASH);
 
     gpio_init(PIN_TX_KEY);
     gpio_set_dir(PIN_TX_KEY, GPIO_OUT);
     gpio_put(PIN_TX_KEY, 0);
 
-    /* The internal pull-ups need time to charge whatever capacitance is on the
-     * paddle lines (filter capacitors in the jack, a long cable). Read too soon
+    /* The external pull-up resistors need time to charge whatever capacitance is
+     * on the paddle lines (filter capacitors in the jack, a long cable). Read too soon
      * and both paddles look pressed, which sends a dit and a dah: an "A" at
      * power-up. Wait (at most 50 ms) for both lines to go high. A paddle really
      * held down stays low and is dealt with by paddles_armed in keyer_tick(). */
