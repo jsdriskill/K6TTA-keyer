@@ -282,6 +282,70 @@ static void render_number_centered(const char *str, int area_h) {
     }
 }
 
+/* Setup menu page: what is being changed on the top line, its value inverted
+ * on the line below (both in the large font, centred), and the page number at
+ * the bottom. Labels and values must be at most EDIT_CELLS_PER_LINE characters. */
+static void render_big_string_centered(const char *str, int y, bool inverted) {
+    int n = (int)strlen(str);
+    if (n > EDIT_CELLS_PER_LINE) {
+        n = EDIT_CELLS_PER_LINE;
+    }
+    int x = (SCREEN_W - (n * BIG_PITCH_X - 1)) / 2;
+    for (int i = 0; i < n; i++) {
+        render_big_cell(str[i], x + i * BIG_PITCH_X, y, inverted);
+    }
+}
+
+static void render_menu_page(uint8_t menu_item) {
+    char label[16];
+    char value[16];
+
+    switch (menu_item) {
+        case 0:
+            snprintf(label, sizeof(label), "MODE");
+            snprintf(value, sizeof(value), "%s", mode_name(sys_config.mode));
+            break;
+        case 1:
+            snprintf(label, sizeof(label), "SIDE FREQ");
+            snprintf(value, sizeof(value), "%d HZ", sys_config.sidetone_freq);
+            break;
+        case 2:
+            snprintf(label, sizeof(label), "SIDE EN");
+            snprintf(value, sizeof(value), "%s", sys_config.sidetone_en ? "ON" : "OFF");
+            break;
+        case 3:
+            snprintf(label, sizeof(label), "WEIGHT");
+            snprintf(value, sizeof(value), "%d%%", sys_config.weighting);
+            break;
+        case 4:
+            snprintf(label, sizeof(label), "DASH RATIO");
+            snprintf(value, sizeof(value), "%d", sys_config.dash_ratio);
+            break;
+        case 5:
+            snprintf(label, sizeof(label), "PADDLE SWAP");
+            snprintf(value, sizeof(value), "%s", sys_config.paddle_swap ? "YES" : "NO");
+            break;
+        case 6:
+            snprintf(label, sizeof(label), "AUTOSPACE");
+            snprintf(value, sizeof(value), "%s", sys_config.autospace ? "ON" : "OFF");
+            break;
+        case 7:
+            snprintf(label, sizeof(label), "1ST EXT");
+            snprintf(value, sizeof(value), "%d MS", sys_config.first_extension);
+            break;
+        default:
+            snprintf(label, sizeof(label), "TEXT");
+            snprintf(value, sizeof(value), "%s", sys_config.show_text ? "ON" : "OFF");
+            break;
+    }
+    render_big_string_centered(label, 0, false);
+    render_big_string_centered(value, BIG_PITCH_Y, true);
+
+    char page[16];
+    snprintf(page, sizeof(page), "%d/%d", menu_item + 1, MENU_ITEM_COUNT);
+    display_render_text(page, (uint8_t)((SCREEN_W - (int)strlen(page) * 6 + 1) / 2), 56);
+}
+
 void display_render(bool menu_active, uint8_t menu_item) {
     memset(frame_buffer, 0x00, sizeof(frame_buffer));
     char line[32];
@@ -301,39 +365,7 @@ void display_render(bool menu_active, uint8_t menu_item) {
         render_number_centered(line, MODE_LINE_Y);
         display_render_text(mode_name(sys_config.mode), 0, MODE_LINE_Y);
     } else {
-        display_render_text("SETUP MENU", 0, 0);
-        switch (menu_item) {
-            case 0:
-                snprintf(line, sizeof(line), "MODE: %s", mode_name(sys_config.mode));
-                break;
-            case 1:
-                snprintf(line, sizeof(line), "SIDE FREQ: %dHz", sys_config.sidetone_freq);
-                break;
-            case 2:
-                snprintf(line, sizeof(line), "SIDE EN: %s", sys_config.sidetone_en ? "ON" : "OFF");
-                break;
-            case 3:
-                snprintf(line, sizeof(line), "WEIGHT: %d%%", sys_config.weighting);
-                break;
-            case 4:
-                snprintf(line, sizeof(line), "DASH RATIO: %d", sys_config.dash_ratio);
-                break;
-            case 5:
-                snprintf(line, sizeof(line), "PADDLE SWAP: %s", sys_config.paddle_swap ? "YES" : "NO");
-                break;
-            case 6:
-                snprintf(line, sizeof(line), "AUTOSPACE: %s", sys_config.autospace ? "ON" : "OFF");
-                break;
-            case 7:
-                snprintf(line, sizeof(line), "1ST EXT: %dms", sys_config.first_extension);
-                break;
-            default:
-                snprintf(line, sizeof(line), "TEXT: %s", sys_config.show_text ? "ON" : "OFF");
-                break;
-        }
-        display_render_text(line, 0, 24);
-        snprintf(line, sizeof(line), "ITEM %d/%d  CLICK=NEXT", menu_item + 1, MENU_ITEM_COUNT);
-        display_render_text(line, 0, 48);
+        render_menu_page(menu_item);
     }
 }
 
