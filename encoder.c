@@ -5,7 +5,6 @@
 #include "hardware/sync.h"
 
 static volatile int8_t enc_delta = 0;
-static uint32_t last_button_time = 0;
 
 static uint8_t enc_last_state = 0;   /* previous (A<<1)|B */
 static int8_t  enc_accum = 0;        /* transitions not yet turned into a detent step */
@@ -92,12 +91,32 @@ int8_t encoder_get_delta(void) {
     return d;
 }
 
+/* Encoder push button: one click per press.
+ *
+ * The switch is debounced in both directions with a small state machine: a press
+ * counts once the line has stayed low for ENC_SW_PRESS_MS, and the button is not
+ * ready for another click until the line has stayed high for ENC_SW_RELEASE_MS.
+ * Contact bounce on either edge (short pulses of the opposite level) is ignored,
+ * and holding the button does not repeat. */
+#define ENC_SW_PRESS_MS    20
+#define ENC_SW_RELEASE_MS  50
+
+static bool sw_pressed;         /* debounced state */
+static bool sw_cand;            /* raw level being timed */
+static uint32_t sw_since;       /* when sw_cand last changed */
+
 bool encoder_button_pressed(void) {
-    if (!gpio_get(PIN_ENC_SW)) {
-        uint32_t now = to_ms_since_boot(get_absolute_time());
-        if (now - last_button_time > 200) {
-            last_button_time = now;
-            return true;
+    uint32_t now = to_ms_since_boot(get_absolute_time());
+    bool raw = !gpio_get(PIN_ENC_SW);
+
+    if (raw != sw_cand) {
+        sw_cand = raw;
+        sw_since = now;
+    } else if (sw_cand != sw_pressed) {
+        uint32_t need = sw_cand ? ENC_SW_PRESS_MS : ENC_SW_RELEASE_MS;
+        if ((uint32_t)(now - sw_since) >= need) {
+            sw_pressed = sw_cand;
+            return sw_pressed;      /* true once, on the press */
         }
     }
     return false;
