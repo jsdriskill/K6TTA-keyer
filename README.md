@@ -85,7 +85,7 @@ Open the CDC port (`/dev/ttyACM0`, any baud rate), send the host-open command (`
 
 ## Power-up
 
-The paddle inputs (GPIO 2 and 3) are plain inputs with the internal pull-up and pull-down both off, so each needs an external pull-up resistor to 3.3 V (10 kohm is typical; never 5 V). Without it the lines float and the keyer sees random paddle contacts. The resistor takes a moment to charge any capacitance on the lines (filter capacitors, a long cable). The keyer waits up to 50 ms at start-up for both lines to go high, and then ignores the paddles until it has seen both released, so contacts that are closed or still settling at power-up never send anything.
+The paddle inputs (GPIO 2 and 3) are plain inputs with the internal pull-up and pull-down both off, so each needs an external pull-up resistor to 3.3 V (never 5 V). I use a stiff 680 ohm pull-up, which passes about 5 mA through the key's contacts when they close. That wetting current keeps the contacts clean and reliable, and the low impedance also makes the lines harder for RF to disturb. A weaker pull-up such as 10 kohm also works. Without it the lines float and the keyer sees random paddle contacts. The resistor takes a moment to charge any capacitance on the lines (filter capacitors, a long cable). The keyer waits up to 50 ms at start-up for both lines to go high, and then ignores the paddles until it has seen both released, so contacts that are closed or still settling at power-up never send anything.
 
 ## Setup menu
 
