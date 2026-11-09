@@ -103,3 +103,7 @@ Three messages of up to 32 characters each, on the buttons at GPIO 9, 10 and 11 
 - Hold 3 seconds: edit that slot. Button presses are ignored while the setup menu is open.
 - Editing starts with the cursor just after the stored message (on "done"). The whole message is shown in large type, four lines of 11 characters, with the cursor inverted. The encoder chooses the character at the cursor (done, space, A-Z, 0-9, `. , ? /`), and the encoder button stores it and moves on. Button 1 / button 2 move the cursor back / forward without changing anything (an unstored change is dropped). Choosing "done" and clicking saves the message up to the cursor; "done" at the first position leaves the slot empty. Filling all 32 positions saves and exits automatically.
 - The messages live in the settings flash page; saving takes about 50 ms, during which USB audio drops out.
+
+## Hardware
+
+KiCad projects for the main and front boards are in [`hardware/`](hardware/README.md) (draft v0.1: parts placed, not yet routed).

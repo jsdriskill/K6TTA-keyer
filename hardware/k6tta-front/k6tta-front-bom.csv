@@ -1,0 +1,7 @@
+Qty,Designators,Value,Footprint,LCSC,JLC class,Part / notes,Who solders
+1,J1,TO MAIN,PinHeader_2x08_P2.54mm_Vertical,,,"2x8 male header 2.54mm, straight; MOUNT ON BACK",you
+1,J2,OLED,PinSocket_1x04_P2.54mm_Vertical,,,1x4 female header for 0.96in SSD1306 I2C module (GND VCC SCL SDA),you
+1,SW1,EC11,RotaryEncoder_Alps_EC11E-Switch_Vertical_H20mm,,,EC11 with push switch,you
+1,SW2,MSG1,SW_PUSH-12mm,C84931,,Omron B3F-4055 + B32-2000 series cap,you
+1,SW3,MSG2,SW_PUSH-12mm,C84931,,Omron B3F-4055 + B32-2000 series cap,you
+1,SW4,MSG3,SW_PUSH-12mm,C84931,,Omron B3F-4055 + B32-2000 series cap,you

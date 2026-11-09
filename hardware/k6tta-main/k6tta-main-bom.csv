@@ -1,0 +1,22 @@
+Qty,Designators,Value,Footprint,LCSC,JLC class,Part / notes,Who solders
+2,C1 C2,1nF,C_0805_2012Metric,C46653,0805 50V basic (confirmed),,JLCPCB
+2,C3 C4,10nF,C_0805_2012Metric,C1710,0805 50V basic (confirmed),,JLCPCB
+2,C5 C6,22uF,C_0805_2012Metric,C45783,0805 25V X5R basic (confirmed),,JLCPCB
+2,C7 C8,100nF,C_0805_2012Metric,C49678,0805 50V basic,,JLCPCB
+1,D1,1N4148W,D_SOD-123,C81598,SOD-123 basic,,JLCPCB
+1,J1,KEY (paddle),Jack_3.5mm_CUI_SJ1-3525N_Horizontal,,,Same Sky SJ1-3525N,you
+1,J2,RIG,Jack_3.5mm_CUI_SJ1-3525N_Horizontal,,,Same Sky SJ1-3525N,you
+1,J3,PHONES,Jack_3.5mm_CUI_SJ1-3525N_Horizontal,,,Same Sky SJ1-3525N,you
+1,J4,SPEAKER,JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical,,,JST B2B-XH-A,you
+1,J5,TO FRONT,PinSocket_2x08_P2.54mm_Horizontal,,,"2x8 female socket, right angle, 2.54mm",you
+1,Q1,AO3400A,SOT-23,C20917,basic (confirmed),,JLCPCB
+2,R1 R2,680,R_0805_2012Metric,C17798,0805 basic (confirmed),,JLCPCB
+1,R3,120,R_0805_2012Metric,C17437,0805 basic (confirmed),,JLCPCB
+1,R4,10k,R_0805_2012Metric,C17414,0805 basic,,JLCPCB
+1,R5,470,R_0805_2012Metric,C17710,0805 basic,,JLCPCB
+1,R6,100,R_0805_2012Metric,C17408,0805 basic,,JLCPCB
+1,R7,100k,R_0805_2012Metric,C149504,0805 basic,,JLCPCB
+1,R8,22R 1/2W,R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal,,,22 ohm 0.5W axial (change value to set speaker level),you
+1,RV1,10k thumbwheel,Alps_RK10J_Thumbwheel_5pin,C470643,,"Alps RK10J11E0034; Rheostat: pin4 = end, pins 3+5 = wipers under both published pinouts. VERIFY footprint.",you
+1,U1,RP2040-Zero,RP2040-Zero_Socketed,,,"Waveshare RP2040-Zero (clone) on 2.54mm female headers 1x9, 1x9, 1x5; USB-C to rear",you
+1,U2,4N35,DIP-6_W7.62mm,,,4N35 DIP-6 (socket optional),you
