@@ -259,7 +259,7 @@
       "internal_id": "",
       "mfg": "",
       "mpn": "",
-      "sch_revision": ""
+      "sch_revision": "0.1"
     },
     "layer_pairs": [],
     "layer_presets": [],
@@ -702,13 +702,18 @@
       {
         "filename": "k6tta-main.kicad_sch",
         "name": "k6tta-main",
-        "uuid": "00000000-0000-0000-0000-000000000000"
+        "uuid": "7efc3320-a429-461d-bc48-a7b9fbdad69f"
       }
     ],
     "used_designators": "",
     "variants": []
   },
-  "sheets": [],
+  "sheets": [
+    [
+      "7efc3320-a429-461d-bc48-a7b9fbdad69f",
+      "k6tta-main"
+    ]
+  ],
   "text_variables": {},
   "tuning_profiles": {
     "meta": {
