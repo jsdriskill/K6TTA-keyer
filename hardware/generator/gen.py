@@ -83,8 +83,8 @@ main_parts = [
     # sidetone / headphones / speaker
     R("R5", "470", (116, 146, 0), "SIDETONE", "VOL_IN"),
     P("RV1", "K6TTA:RK10J_5pin", "10k thumbwheel", "K6TTA:Alps_RK10J_Thumbwheel_5pin", (104.5, 148, 90),
-      {"1": None, "2": None, "3": "HP", "4": "VOL_IN", "5": "HP"}, lcsc="C470643", mfr="Alps RK10J11E0034",
-      assembly="hand", note="Rheostat: pin4 = end, pins 3+5 = wipers under both published pinouts. VERIFY footprint."),
+      {"1": "VOL_IN", "2": None, "3": "HP", "4": None, "5": "HP"}, lcsc="C470643", mfr="Alps RK10J11E0034",
+      assembly="hand", note="Rheostat: pad 1 = end (VOL_IN), pad 3 = wiper tied to pad 5 (other end); pads 2/4 dummy"),
     P("J3", "Connector:AudioJack3_SwitchTR", "PHONES", JACK, (104.5, 133, 270),
       {"T": "HP", "R": "HP", "S": GND, "TN": "HP_SW", "RN": None}, mfr="Same Sky SJ1-3525N", assembly="hand"),
     R("R6", "100", (116.5, 123.5, 90), "HP_SW", "GATE"),
@@ -267,7 +267,7 @@ def schematic(board, parts, sym_uuid, title):
     notes = {
         "k6tta-main": ["Generated from K6TTA-keyer config.h pin map. Labels connect by name.",
                        "J5 is a 2x8 RIGHT-ANGLE socket at the front edge; odd row (rear/upper) = signals, even row = GND/3V3.",
-                       "RV1: Alps RK10J 5-pin thumbwheel used as a rheostat (pin 4 = end, pins 3+5 = wipers). Verify pinout.",
+                       "RV1: Alps RK10J thumbwheel as a rheostat: pad 1 = end (VOL_IN), pad 3 = wiper + pad 5 (HP); pads 2,4 dummy.",
                        "C3 = RF fix (rig jack sleeve to keyer GND). C4 optional (across rig tip/sleeve)."],
         "k6tta-front": ["J1 is a straight 2x8 header soldered on the BACK of this board; it plugs into J5 on the main board.",
                         "Front J1 pin 2i+2 (upper row) mates with main J5 pin 2i+1; pin 2i+1 (lower row) mates with main pin 2i+2.",

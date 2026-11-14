@@ -51,10 +51,11 @@ def rp2040_zero_footprint():
 
 
 def rk10j_footprint():
-    """Alps RK10J top-adjust thumbwheel, 5 pins at 2 mm pitch, geometry after botanicfields BF@RK10J.
-    Wheel centre at origin, pins toward +Y. VERIFY against the Alps drawing before ordering."""
+    """Alps RK10J top-adjust thumbwheel (RK10J11E0034), checked against the Alps PC board drawing.
+    Wheel centre at origin, terminals toward +Y. Pads 1/3/5 = datasheet pins 1 (end) / 2 (wiper) / 3 (end);
+    pads 2 and 4 are dummy terminals; the two unnumbered slots are mounting tabs."""
     s = ('(footprint "Alps_RK10J_Thumbwheel_5pin" (version 20211014) (generator pcbnew)\n  (layer "F.Cu")\n'
-         '  (descr "Alps RK10J thumbwheel potentiometer, 5 terminals P2.0mm, 2 mounting tabs. Geometry unverified: check the Alps drawing for RK10J11E0034")\n'
+         '  (descr "Alps RK10J thumbwheel potentiometer, 5 terminals P2.0mm, 2 mounting tabs. Checked against Alps drawing: pads 1,3,5 = pins 1 (end), 2 (wiper), 3 (end); pads 2,4 dummy; slots = tabs")\n'
          '  (tags "thumbwheel potentiometer Alps RK10J")\n  (attr through_hole)\n')
     s += _txt("reference", "REF**", 0, -8.5, "F.SilkS")
     s += _txt("value", "RK10J", 0, 0, "F.Fab")
@@ -67,7 +68,7 @@ def rk10j_footprint():
     for i in range(5):
         s += _pad_th(str(i + 1), -4 + 2 * i, 7.5, size=1.6, drill=1.0, shape="circle")
     for x in (-5, 5):
-        s += ('  (pad "MP" thru_hole oval (at %g -2.5) (size 1.3 2.1) (drill oval 0.7 1.5) (layers *.Cu *.Mask))\n' % x)
+        s += ('  (pad "" thru_hole oval (at %g -2.5) (size 1.3 2.0) (drill oval 0.75 1.3) (layers *.Cu *.Mask))\n' % x)
     return s + ")\n"
 
 
@@ -103,10 +104,10 @@ def rp2040_zero_symbol(name="RP2040-Zero"):
 
 def rk10j_symbol(name="RK10J_5pin"):
     s = _sym_head(name, "RV", "10k", "K6TTA:Alps_RK10J_Thumbwheel_5pin",
-                  "Alps RK10J 5-terminal (dual) thumbwheel potentiometer; pin1 common end")
+                  "Alps RK10J thumbwheel potentiometer (single); pins 1,3,5 = end, wiper, end; 2,4 dummy")
     s += ('    (symbol "%s_0_1"\n      (rectangle (start -5.08 7.62) (end 5.08 -7.62) (stroke (width 0.254) (type default) (color 0 0 0 0)) (fill (type background)))\n    )\n' % name)
     s += '    (symbol "%s_1_1"\n' % name
-    names = ["COM", "2", "3", "4", "5"]
+    names = ["END1", "DUMMY", "WIPER", "DUMMY", "END3"]
     for i in range(5):
         s += _sym_pin(str(i + 1), names[i], -7.62, 5.08 - 2.54 * i, 0)
     return s + "    )\n  )\n"
