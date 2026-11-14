@@ -1,21 +1,23 @@
-Board,Qty,Designators,Part,Specification,Suggested part / MPN,LCSC,Notes
-Main,3,J1 J2 J3,3.5 mm stereo jack (switched),"PCB right-angle, 5 pin, tip + ring switches",Same Sky SJ1-3525N,,"Mouser/Digi-Key; KEY, RIG, PHONES"
-Main,1,RV1,Thumbwheel potentiometer,"10k, top-adjust, 14 mm wheel, 5 terminals",Alps RK10J11E0034,C470643,Pads 2 and 4 are dummy terminals; solder them for strength
-Main,1,U2,Optocoupler,"4N35, DIP-6",4N35 (Vishay / Everlight / Lite-On),,
-Main,1,(U2),IC socket (optional),"DIP-6, 7.62 mm",Any turned-pin or dual-wipe DIP-6 socket,,Lets you swap the 4N35
-Main,1,R8,Resistor,"22 ohm, 1/2 W, axial (0207, 7.62 mm pitch)",Any metal-film 22R 0.5W,,Speaker level; change value to taste (0-10 ohm for a buzzer)
-Main,1,J4,Speaker connector,"JST XH, 2 pin, vertical, 2.5 mm",JST B2B-XH-A,C158012,Check LCSC number; also XHP-2 housing + 2 SXH-001T-P0.6 crimps (or a pre-crimped XH 2-pin lead)
-Main,1,U1,Microcontroller module,RP2040-Zero (Waveshare or clone),Waveshare RP2040-Zero,,Needs its male headers soldered on (usually included)
-Main,2,(U1),Female header,"1x9, 2.54 mm, straight",Generic 2.54 mm female header,,Sockets for the RP2040-Zero long sides
-Main,1,(U1),Female header,"1x5, 2.54 mm, straight",Generic 2.54 mm female header,,Socket for the RP2040-Zero short row (GP9-GP13)
-Main,1,J5,Female header,"2x8, 2.54 mm, right angle",Generic 2x8 right-angle female header,,Board-to-board socket at the front edge
-Main,1,LS1 (off board),Speaker,"8 ohm, 28-40 mm, 0.5-1 W",Any small 8 ohm speaker,,Wire to J4 (+ to pin 1)
-Main,4,H1-H4,Standoffs + screws,"M3, length to suit enclosure",M3 nylon or brass standoffs,,
-Front,1,J1,Male header,"2x8, 2.54 mm, straight",Generic 2x8 pin header,,Solder on the BACK of the front board
-Front,1,J2,Female header,"1x4, 2.54 mm, straight",Generic 2.54 mm female header,,OLED socket
-Front,1,(J2),OLED display module,"0.96 in, 128x64, SSD1306, I2C, 3.3 V",Generic SSD1306 I2C module,,Pin order must be GND VCC SCL SDA; support it with standoffs or the panel
-Front,1,SW1,Rotary encoder with push switch,"EC11 style, 5 pin + 2 tabs, 6 mm shaft, ~20 mm",Alps EC11E series with switch or generic EC11,,Not Bourns PEC11R (different tabs)
-Front,1,(SW1),Knob,"6 mm shaft, 15-20 mm diameter",Any 6 mm knob (match D or knurled shaft),,
-Front,3,SW2 SW3 SW4,Tactile switch,"12 x 12 mm, 7.3 mm, through-hole",Omron B3F-4055,C84931,MSG1-MSG3
-Front,3,(SW2-SW4),Button cap,Round cap for Omron B3F-4000 series,Omron B32-2000 series (e.g. B32-2010 black),,Check the cap is listed for B3F-4000
-Front,4,H1-H4,Standoffs + screws,"M3, length to suit enclosure",M3 nylon or brass standoffs,,
+Board,Qty,Designators,Part,Specification,Suggested part / MPN,LCSC,Buy from,Notes
+Main,3,J1 J2 J3,3.5 mm stereo jack (switched),"PCB right-angle, 5 pin, tip + ring switches",Same Sky SJ1-3525N,C20182915,LCSC,"KEY, RIG, PHONES. Check LCSC stock; Mouser/Digi-Key if out"
+Main,1,RV1,Thumbwheel potentiometer,"10k, top-adjust, 14 mm wheel, 5 terminals",Alps RK10J11E0034,C470643,LCSC,Pads 2 and 4 are dummy terminals; solder them for strength
+Main,1,U2,Optocoupler,"4N35, DIP-6",Everlight 4N35,C57084,LCSC,
+Main,1,(U2),IC socket (optional),"DIP-6, 7.62 mm",BOOMELE IC-6P,C29531,LCSC,Lets you swap the 4N35
+Main,1,R8,Resistor,"22 ohm, 1/2 W, axial",TyoHM RN1/2W 22R,C385598,LCSC,"Speaker level. A 1/2 W body may be longer than the 7.62 mm footprint: stand it upright (hairpin) if so"
+Main,1,J4,Speaker connector (board),"JST XH, 2 pin, vertical, 2.5 mm",JST B2B-XH-A(LF)(SN),C158012,LCSC,
+Main,1,(J4),Speaker connector (plug),"JST XH 2 pin housing",JST XHP-2,C144401,LCSC,Or a pre-crimped JST-XH 2-pin lead from Amazon
+Main,2,(J4),Crimp contacts,"JST XH, 22-28 AWG",JST SXH-001T-P0.6,C140573,LCSC,Buy a few spares
+Main,1,U1,Microcontroller module,RP2040-Zero (Waveshare or clone),Waveshare RP2040-Zero,,Amazon,Needs its male headers soldered on (usually included)
+Main,2,(U1),Female header,"1x9, 2.54 mm, straight",BOOMELE 2.54-1*9P,C39576,LCSC,Sockets for the RP2040-Zero long sides
+Main,1,(U1),Female header,"1x5, 2.54 mm, straight",BOOMELE 2.54-1*5P,C50950,LCSC,Socket for the RP2040-Zero short row (GP9-GP13)
+Main,1,J5,Female header,"2x8, 2.54 mm, right angle",BOOMELE 2x8P 90 degree female,C52105,LCSC,Board-to-board socket at the front edge
+Main,1,LS1 (off board),Speaker,"8 ohm, 28-40 mm, 0.5-1 W",Any small 8 ohm speaker,,Amazon,Wire to J4 (+ to pin 1)
+Main,4,H1-H4,Standoffs + screws,"M3, length to suit enclosure",M3 nylon or brass standoff kit,,Amazon,
+Front,1,J1,Male header,"2x8, 2.54 mm, straight",BOOMELE 2.54-2*8P,C68234,LCSC,Solder on the BACK of the front board
+Front,1,J2,Female header,"1x4, 2.54 mm, straight",BOOMELE 2.54-1*4P,C2718488,LCSC,OLED socket
+Front,1,(J2),OLED display module,"0.96 in, 128x64, SSD1306, I2C, 3.3 V",Generic SSD1306 I2C module,,Amazon,Pin order must be GND VCC SCL SDA; support it with standoffs or the panel
+Front,1,SW1,Rotary encoder with push switch,"EC11, 5 pin + 2 tabs",Alps EC11E18244A5,C255515,LCSC,"Check the shaft length/type in the datasheet (about 20 mm suits the panel); any EC11 with switch fits, not Bourns PEC11R"
+Front,1,(SW1),Knob,"6 mm shaft, 15-20 mm diameter",Any 6 mm knob (match D or knurled shaft),,Amazon,
+Front,3,SW2 SW3 SW4,Tactile switch,"12 x 12 mm, 7.3 mm, through-hole",Omron B3F-4055,C84931,LCSC,MSG1-MSG3
+Front,3,(SW2-SW4),Button cap,Cap for 12 x 12 x 7.3 mm tactile switch,Generic 12x12 tactile caps (or Omron B32-2000 series),,Amazon,Check the listing says it fits 12x12x7.3 mm switches
+Front,4,H1-H4,Standoffs + screws,"M3, length to suit enclosure",M3 nylon or brass standoff kit,,Amazon,
