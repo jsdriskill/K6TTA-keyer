@@ -91,6 +91,8 @@ The paddle inputs (GPIO 2 and 3) are plain inputs with the internal pull-up and 
 
 Click the encoder to open the menu and again to step to the next page. Each page shows what is being changed on the top line (large type, centred), its value on the line below (large type, inverted), and the page number (for example 3/9) at the bottom. Turn the encoder to change the value.
 
+**1ST EXT** (0-25 ms) lengthens the first dit or dah of a transmission, to make up for the radio's receive-to-transmit switching (semi break-in, or an amplifier relay keyed by the radio) clipping it. A transmission starts after the key has been up for at least 250 ms, so letters and words sent in a normal flow are not affected. Leave it at 0 with full QSK.
+
 ## Main screen
 
 The speed (large digits) and the mode are shown at boot. As soon as anything is sent, the screen switches to the text that has been sent, in large type: four lines of 11 characters, word wrapped, scrolling up one line at a time when the bottom line is full. It shows what the paddles sent (decoded with the same Morse table the WinKeyer sender uses; the prosigns BT, AR and SK are shown as `<BT>`, `<AR>` and `<SK>`, and a pattern that is not a character shows `*`), plus stored messages and text sent from the WinKeyer port. The text stays until reboot. Turning the encoder, or a speed change from the WinKeyer host, shows the speed for 3 seconds (each change restarts the timer), then the text returns. In bug and straight-key modes nothing is decoded and the speed screen stays. The TEXT setting in the setup menu (last page) turns the text display off, which leaves the speed screen on all the time.

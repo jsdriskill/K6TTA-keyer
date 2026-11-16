@@ -22,7 +22,15 @@ static bool dit_latched = false;
 static bool dash_latched = false;
 static bool last_was_dit = false;
 static bool bug_dah_flag;               /* bug mode: dah key-down is in progress */
-static bool first_element = true;
+/* First extension: lengthen the first element of a transmission so the
+ * radio's receive-to-transmit switching (semi break-in, amplifier relay)
+ * doesn't clip it. A transmission starts when the key has been up for at least
+ * FIRST_EXT_HOLDOFF_MS (a virtual PTT tail), so letters and words sent in a
+ * normal flow are not lengthened. */
+#define FIRST_EXT_HOLDOFF_MS 250
+static uint32_t ext_last_off;           /* time of the last key-up */
+static bool ext_keyed_before;           /* false until the first key-up */
+static bool key_is_down;
 
 typedef struct { bool state, cand; uint32_t since; } Debounce;
 static Debounce deb_dit, deb_dash;
@@ -217,6 +225,7 @@ static uint32_t dash_len(void) {
 }
 
 static void key_on(void) {
+    key_is_down = true;
     gpio_put(PIN_TX_KEY, 1);
     keyer_set_sidetone(true);
     usb_key_event(true);    /* mirrored sidetone (USB audio) + MIDI note on */
@@ -224,9 +233,23 @@ static void key_on(void) {
 
 static void key_off(void) {
     pe_last_off = tick_now;
+    if (key_is_down) {              /* straight-key mode calls key_off() every tick while idle */
+        ext_last_off = tick_now;
+        ext_keyed_before = true;
+    }
+    key_is_down = false;
     gpio_put(PIN_TX_KEY, 0);
     keyer_set_sidetone(false);
     usb_key_event(false);
+}
+
+/* extra key-down time for an element starting at 'now' */
+static uint32_t first_ext_ms(uint32_t now) {
+    if (sys_config.first_extension == 0) {
+        return 0;
+    }
+    bool new_tx = !ext_keyed_before || (now - ext_last_off) >= FIRST_EXT_HOLDOFF_MS;
+    return new_tx ? sys_config.first_extension : 0;
 }
 
 void keyer_init(void) {
@@ -317,12 +340,8 @@ static void start_dit(uint32_t now) {
     dit_latched = false;
     last_was_dit = true;
     being_sent = SENT_DIT;
+    uint32_t len = dit_element_ms() + first_ext_ms(now);
     key_on();
-    uint32_t len = dit_element_ms();
-    if (first_element) {
-        len += sys_config.first_extension;
-        first_element = false;
-    }
     state_timer = now + len;
     current_state = STATE_DIT;
 }
@@ -332,12 +351,8 @@ static void start_dash(uint32_t now) {
     dash_latched = false;
     last_was_dit = false;
     being_sent = SENT_DAH;
+    uint32_t len = dah_element_ms() + first_ext_ms(now);
     key_on();
-    uint32_t len = dah_element_ms();
-    if (first_element) {
-        len += sys_config.first_extension;
-        first_element = false;
-    }
     state_timer = now + len;
     current_state = STATE_DASH;
 }
@@ -354,8 +369,9 @@ static void tx_abort(void) {
 
 static void tx_start_element(uint32_t now) {
     bool dash = (tx_cur->bits >> (tx_cur->len - 1 - tx_idx)) & 1;
+    uint32_t len = (dash ? dash_len() : weighted_dit()) + first_ext_ms(now);
     key_on();
-    tx_timer = now + (dash ? dash_len() : weighted_dit());
+    tx_timer = now + len;
     tx_idx++;
     tx_state = TX_KEYDOWN;
 }
@@ -631,7 +647,6 @@ static void keyer_paddles(uint32_t now, bool raw_dit, bool raw_dash) {
         } else {
             key_off();
             current_state = STATE_IDLE;
-            first_element = true;
         }
         return;
     }
@@ -643,9 +658,6 @@ static void keyer_paddles(uint32_t now, bool raw_dit, bool raw_dash) {
 
     if (current_state == STATE_IDLE) {
         check_paddles(raw_dit, raw_dash);
-        if (!dit_latched && !dash_latched && !bug_dah_flag) {
-            first_element = true;
-        }
         idle_service(now, raw_dit, raw_dash);
         return;
     }
