@@ -70,7 +70,15 @@ int main(void) {
                 }
                 sys_config.mode = (uint8_t)mode;
             } else if (menu_item == 1) {
-                int freq = (int)sys_config.sidetone_freq + (delta * 50);
+                /* Step in 50 Hz. A frequency set by the WinKeyer command
+                 * (4000/n Hz) is usually off that grid: the first click snaps
+                 * to the next multiple of 50 in the direction turned. */
+                int freq = (int)sys_config.sidetone_freq;
+                if (delta > 0) {
+                    freq = (freq / 50) * 50 + delta * 50;
+                } else {
+                    freq = ((freq + 49) / 50) * 50 + delta * 50;
+                }
                 sys_config.sidetone_freq = (uint16_t)clampi(freq, 400, 1200);
                 keyer_update_sidetone_freq();
             } else if (menu_item == 2) {
