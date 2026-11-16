@@ -298,6 +298,7 @@ static void render_big_string_centered(const char *str, int y, bool inverted) {
 
 static void render_menu_page(uint8_t menu_item) {
     char label[16];
+    char label2[16] = "";       /* optional second label line */
     char value[16];
 
     switch (menu_item) {
@@ -330,7 +331,8 @@ static void render_menu_page(uint8_t menu_item) {
             snprintf(value, sizeof(value), "%s", sys_config.autospace ? "ON" : "OFF");
             break;
         case 7:
-            snprintf(label, sizeof(label), "1ST EXT");
+            snprintf(label, sizeof(label), "EXTEND");
+            snprintf(label2, sizeof(label2), "1ST ELEMENT");
             snprintf(value, sizeof(value), "%d MS", sys_config.first_extension);
             break;
         default:
@@ -338,10 +340,19 @@ static void render_menu_page(uint8_t menu_item) {
             snprintf(value, sizeof(value), "%s", sys_config.show_text ? "ON" : "OFF");
             break;
     }
-    /* The two large lines are centred vertically on the display (rows 16..47). */
-    int y0 = (SCREEN_H - 2 * BIG_PITCH_Y) / 2;
-    render_big_string_centered(label, y0, false);
-    render_big_string_centered(value, y0 + BIG_PITCH_Y, true);
+    if (label2[0] != '\0') {
+        /* Three large lines (two-line label + value) in rows 4..51, above the
+         * page number at row 56. */
+        int y0 = (56 - 3 * BIG_PITCH_Y) / 2;
+        render_big_string_centered(label, y0, false);
+        render_big_string_centered(label2, y0 + BIG_PITCH_Y, false);
+        render_big_string_centered(value, y0 + 2 * BIG_PITCH_Y, true);
+    } else {
+        /* The two large lines are centred vertically on the display (rows 16..47). */
+        int y0 = (SCREEN_H - 2 * BIG_PITCH_Y) / 2;
+        render_big_string_centered(label, y0, false);
+        render_big_string_centered(value, y0 + BIG_PITCH_Y, true);
+    }
 
     char page[16];
     snprintf(page, sizeof(page), "%d/%d", menu_item + 1, MENU_ITEM_COUNT);

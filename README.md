@@ -32,7 +32,23 @@ cmake --build build
 
 For Pico 2, pass `-DPICO_BOARD=pico2`.
 
-Flash `build/k6tta-keyer.uf2` by holding BOOTSEL, plugging USB, and copying the UF2.
+Flash `build/k6tta-keyer.uf2` by holding BOOTSEL, plugging USB, and copying the UF2, or with `picotool load -x build/k6tta-keyer.uf2` while the board is in BOOTSEL.
+
+Once this firmware is on the board, picotool can reboot the running keyer into BOOTSEL itself, so it can be updated without opening the case:
+
+```bash
+picotool load -f -x build/k6tta-keyer.uf2 --vid 0xcafe --pid 0x4019
+```
+
+`-f` reboots the keyer into BOOTSEL through its USB reset interface, and `-x` starts the new firmware after loading. `--vid`/`--pid` are needed because picotool only looks at Raspberry Pi's vendor id by default. On Linux, picotool needs permission to open the keyer; if it only works with `sudo`, add a udev rule:
+
+```bash
+echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="cafe", ATTRS{idProduct}=="4019", TAG+="uaccess"' | \
+  sudo tee /etc/udev/rules.d/60-k6tta-keyer.rules
+sudo udevadm control --reload-rules && sudo udevadm trigger
+```
+
+(The board in BOOTSEL mode uses Raspberry Pi's vendor id, which picotool's own udev rules cover.)
 
 ## USB
 
@@ -43,6 +59,7 @@ The keyer enumerates as one composite device ("K6TTA Keyer"):
 | Serial (CDC) | WinKeyer v2-style port |
 | Audio | A mono 48 kHz, 16-bit USB microphone ("K6TTA Keyer Sidetone", UAC2). It carries the same sidetone as the buzzer (same frequency, 4 ms attack/release ramps), but it is always on: the menu's sidetone switch only turns off the local speaker/headphone output. Mute the device on the computer if you don't want it. Windows needs 10 (1703) or later; macOS and Linux work out of the box. |
 | MIDI | A class-compliant MIDI device ("K6TTA Keyer MIDI") |
+| Reset | Raspberry Pi's vendor reset interface ("K6TTA Keyer Reset"), used by `picotool load -f` to reboot into BOOTSEL. No driver needed on Linux or macOS. |
 
 ### MIDI messages
 
@@ -91,7 +108,7 @@ The paddle inputs (GPIO 2 and 3) are plain inputs with the internal pull-up and 
 
 Click the encoder to open the menu and again to step to the next page. Each page shows what is being changed on the top line (large type, centred), its value on the line below (large type, inverted), and the page number (for example 3/9) at the bottom. Turn the encoder to change the value.
 
-**1ST EXT** (0-25 ms) lengthens the first dit or dah of a transmission, to make up for the radio's receive-to-transmit switching (semi break-in, or an amplifier relay keyed by the radio) clipping it. A transmission starts after the key has been up for at least 250 ms, so letters and words sent in a normal flow are not affected. Leave it at 0 with full QSK.
+**EXTEND 1ST ELEMENT** (0-25 ms) lengthens the first dit or dah of a transmission, to make up for the radio's receive-to-transmit switching (semi break-in, or an amplifier relay keyed by the radio) clipping it. A transmission starts after the key has been up for at least 250 ms, so letters and words sent in a normal flow are not affected. Leave it at 0 with full QSK.
 
 ## Main screen
 

@@ -68,7 +68,20 @@ target_link_libraries(k6tta_keyer
     pico_multicore
     pico_flash
     pico_unique_id
+    pico_bootrom
+    hardware_watchdog
     tinyusb_device
+    pico_usb_reset
+)
+
+# Raspberry Pi USB reset interface (an extra vendor interface), so picotool can
+# reboot the running keyer into BOOTSEL: picotool load -f -x ... (see README).
+# The 1200-baud reset is left off: 1200 baud is the WinKeyer serial rate.
+target_compile_definitions(k6tta_keyer PRIVATE
+    PICO_ENABLE_USB_RESET_VIA_VENDOR_INTERFACE=1
+    PICO_ENABLE_USB_RESET_VIA_BAUD_RATE=0
+    PICO_USB_RESET_INCLUDE_DEFAULT_APP_DRIVER_CB=1
+    PICO_USB_RESET_SUPPORT_MS_OS_20_DESCRIPTOR=0
 )
 
 # USB is handled by our own TinyUSB composite device (CDC + audio + MIDI, see

@@ -13,6 +13,7 @@
 #include <string.h>
 
 #include "pico/unique_id.h"
+#include "pico/usb_reset_interface.h"   /* RESET_INTERFACE_SUBCLASS / _PROTOCOL */
 #include "tusb.h"
 
 #include "usb_device.h"
@@ -68,6 +69,7 @@ enum {
     ITF_NUM_CDC_DATA,
     ITF_NUM_MIDI,                /* MIDI uses 2 interfaces: 4, 5 */
     ITF_NUM_MIDI_STREAMING,
+    ITF_NUM_RESET,               /* Raspberry Pi reset interface (picotool) */
     ITF_NUM_TOTAL
 };
 
@@ -78,8 +80,16 @@ enum {
 #define EPNUM_MIDI_OUT    0x04
 #define EPNUM_MIDI_IN     0x84
 
+/* Raspberry Pi USB reset interface: a bare vendor interface (no endpoints)
+ * that picotool uses to reboot the device into BOOTSEL. Handled by the SDK's
+ * pico_usb_reset library. */
+#define RESET_ITF_DESC_LEN  9
+#define RESET_ITF_DESCRIPTOR(_itfnum, _stridx) \
+    RESET_ITF_DESC_LEN, TUSB_DESC_INTERFACE, _itfnum, 0, 0, TUSB_CLASS_VENDOR_SPECIFIC, \
+    RESET_INTERFACE_SUBCLASS, RESET_INTERFACE_PROTOCOL, _stridx
+
 #define CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_AUDIO_MIC_ONE_CH_DESC_LEN + \
-                           TUD_CDC_DESC_LEN + TUD_MIDI_DESC_LEN)
+                           TUD_CDC_DESC_LEN + TUD_MIDI_DESC_LEN + RESET_ITF_DESC_LEN)
 
 static uint8_t const desc_configuration[] = {
     /* Config number, interface count, string index, total length, attribute, power in mA */
@@ -96,6 +106,9 @@ static uint8_t const desc_configuration[] = {
 
     /* MIDI: interface, string index, EP out, EP in, size */
     TUD_MIDI_DESCRIPTOR(ITF_NUM_MIDI, 6, EPNUM_MIDI_OUT, EPNUM_MIDI_IN, 64),
+
+    /* Reset (picotool): interface, string index */
+    RESET_ITF_DESCRIPTOR(ITF_NUM_RESET, 7),
 };
 
 uint8_t const *tud_descriptor_configuration_cb(uint8_t index) {
@@ -114,6 +127,7 @@ enum {
     STRID_AUDIO,
     STRID_CDC,
     STRID_MIDI,
+    STRID_RESET,
 };
 
 static char const *const string_desc_arr[] = {
@@ -124,6 +138,7 @@ static char const *const string_desc_arr[] = {
     "K6TTA Keyer Sidetone",        /* 4: audio function */
     "K6TTA Keyer WinKeyer",        /* 5: CDC serial */
     "K6TTA Keyer MIDI",            /* 6: MIDI */
+    "K6TTA Keyer Reset",           /* 7: picotool reset interface */
 };
 
 static uint16_t desc_str[32 + 1];
