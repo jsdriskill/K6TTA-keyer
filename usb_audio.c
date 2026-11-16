@@ -59,10 +59,12 @@ void usb_audio_init(void) {
     sample_freq_range.subrange[0].bRes = 0;
 }
 
-/* Fill n samples of the sidetone. The tone follows the local sidetone
- * settings (frequency, and the enable flag), so it mirrors what the buzzer does. */
+/* Fill n samples of the sidetone at the local sidetone frequency. The USB
+ * audio does not follow the menu's sidetone on/off setting (that only switches
+ * the speaker/headphone output), so the computer always gets the tone; mute it
+ * on the computer instead. */
 static void synth_block(int16_t *out, int n) {
-    bool on = usb_key_state() && sys_config.sidetone_en && !mute[0];
+    bool on = usb_key_state() && !mute[0];
 
     uint32_t freq = sys_config.sidetone_freq;
     if (freq < 100 || freq > 4000) {

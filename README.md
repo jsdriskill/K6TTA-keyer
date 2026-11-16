@@ -41,7 +41,7 @@ The keyer enumerates as one composite device ("K6TTA Keyer"):
 | Function | What the host sees |
 | --- | --- |
 | Serial (CDC) | WinKeyer v2-style port |
-| Audio | A mono 48 kHz, 16-bit USB microphone ("K6TTA Keyer Sidetone", UAC2). It carries the same sidetone as the buzzer: same frequency, silent when sidetone is disabled in the menu, 4 ms attack/release ramps. Windows needs 10 (1703) or later; macOS and Linux work out of the box. |
+| Audio | A mono 48 kHz, 16-bit USB microphone ("K6TTA Keyer Sidetone", UAC2). It carries the same sidetone as the buzzer (same frequency, 4 ms attack/release ramps), but it is always on: the menu's sidetone switch only turns off the local speaker/headphone output. Mute the device on the computer if you don't want it. Windows needs 10 (1703) or later; macOS and Linux work out of the box. |
 | MIDI | A class-compliant MIDI device ("K6TTA Keyer MIDI") |
 
 ### MIDI messages
